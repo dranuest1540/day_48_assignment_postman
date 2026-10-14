@@ -11,9 +11,9 @@ const authenticate = (req, res, next) => {
             });
         }
 
-        const token = authHeader.split(" ")[1];
+        const [scheme, token, ...extraParts] = authHeader.trim().split(/\s+/);
 
-        if (!token) {
+        if (scheme?.toLowerCase() !== "bearer" || !token || extraParts.length > 0) {
             return res.status(401).json({
                 success: false,
                 message: "Format token tidak valid"

@@ -99,17 +99,38 @@ CREATE TABLE enrollments (
 );
 
 -- ==========================================
+-- TABLE PRODUCTS (DAY 48 API ASSIGNMENT)
+-- ==========================================
+
+CREATE TABLE products (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    price DECIMAL(10,2) UNSIGNED NOT NULL DEFAULT 0.00,
+    stock INT UNSIGNED NOT NULL DEFAULT 0,
+    created_by INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_products_creator
+        FOREIGN KEY (created_by)
+        REFERENCES users(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+);
+
+-- ==========================================
 -- INSERT USERS
 -- ==========================================
 
 INSERT INTO users (name, email, password, role) VALUES
-('Danu Prastyo', 'danu@gmail.com', 'password123', 'student'),
-('Budi Santoso', 'budi@gmail.com', 'password123', 'student'),
-('Siti Aminah', 'siti@gmail.com', 'password123', 'student'),
-('Jane Instructor', 'jane@gmail.com', 'password123', 'instructor'),
-('Andi Developer', 'andi@gmail.com', 'password123', 'instructor'),
-('Admin LMS', 'admin@gmail.com', 'password123', 'admin'),
-('Santoso Uri', 'santoso@gmail.com', 'password123', 'student');
+('Danu Prastyo', 'danu@gmail.com', '$2b$10$awVK0z8j5r4giXxsV6OlAu1zVrCBBTxn7ArHeq/lxSQENbAAO1q9a', 'student'),
+('Budi Santoso', 'budi@gmail.com', '$2b$10$awVK0z8j5r4giXxsV6OlAu1zVrCBBTxn7ArHeq/lxSQENbAAO1q9a', 'student'),
+('Siti Aminah', 'siti@gmail.com', '$2b$10$awVK0z8j5r4giXxsV6OlAu1zVrCBBTxn7ArHeq/lxSQENbAAO1q9a', 'student'),
+('Jane Instructor', 'jane@gmail.com', '$2b$10$awVK0z8j5r4giXxsV6OlAu1zVrCBBTxn7ArHeq/lxSQENbAAO1q9a', 'instructor'),
+('Andi Developer', 'andi@gmail.com', '$2b$10$awVK0z8j5r4giXxsV6OlAu1zVrCBBTxn7ArHeq/lxSQENbAAO1q9a', 'instructor'),
+('Admin LMS', 'admin@gmail.com', '$2b$10$awVK0z8j5r4giXxsV6OlAu1zVrCBBTxn7ArHeq/lxSQENbAAO1q9a', 'admin'),
+('Santoso Uri', 'santoso@gmail.com', '$2b$10$awVK0z8j5r4giXxsV6OlAu1zVrCBBTxn7ArHeq/lxSQENbAAO1q9a', 'student');
 
 -- ==========================================
 -- INSERT CATEGORIES

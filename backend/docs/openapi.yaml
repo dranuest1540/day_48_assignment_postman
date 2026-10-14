@@ -1,0 +1,398 @@
+openapi: 3.0.3
+info:
+  title: LMS Authentication and Products API
+  version: 1.0.0
+  license:
+    name: UNLICENSED
+    url: https://choosealicense.com/no-permission/
+  description: |
+    Authentication and Product CRUD endpoints for the Day 48 assignment.
+    Product listing and retrieval are public. Product mutations require a JWT Bearer token.
+servers:
+  - url: http://localhost:3000/api
+tags:
+  - name: Auth
+    description: Account registration, login, and current-user authentication.
+  - name: Products
+    description: Public product reads and JWT-protected product mutations.
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      operationId: registerAccount
+      summary: Register a student account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              name: Ada Student
+              email: ada@example.test
+              password: secure-pass-123
+      responses:
+        '201':
+          description: Account created; password is not returned.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Registrasi berhasil
+                data:
+                  id: 12
+                  name: Ada Student
+                  email: ada@example.test
+                  role: student
+        '409':
+          description: Email is already registered.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '422':
+          description: Invalid name, email, or password.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationErrorResponse' }
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: loginAccount
+      summary: Log in and receive a JWT
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: ada@example.test
+              password: secure-pass-123
+      responses:
+        '200':
+          description: Login succeeded; use the token as a Bearer token.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Login berhasil
+                data:
+                  token: eyJhbGciOiJIUzI1NiJ9.example.signature
+                  user:
+                    id: 12
+                    name: Ada Student
+                    email: ada@example.test
+                    role: student
+        '401':
+          description: Email or password is incorrect.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '422':
+          description: Email or password is missing.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /auth/me:
+    get:
+      tags: [Auth]
+      operationId: getCurrentUser
+      summary: Get the authenticated account
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current account.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Data user berhasil diambil
+                data:
+                  id: 12
+                  name: Ada Student
+                  email: ada@example.test
+                  role: student
+        '401':
+          description: Bearer token is missing, invalid, or expired.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Account no longer exists.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /products:
+    get:
+      tags: [Products]
+      operationId: listProducts
+      summary: List products
+      security: []
+      responses:
+        '200':
+          description: Product list.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Data product berhasil diambil
+                data:
+                  - id: 3
+                    name: Keyboard
+                    description: Mechanical keyboard
+                    price: 75.5
+                    stock: 4
+                    created_by: 12
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+    post:
+      tags: [Products]
+      operationId: createProduct
+      summary: Create a product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+            example:
+              name: Keyboard
+              description: Mechanical keyboard
+              price: 75.5
+              stock: 4
+      responses:
+        '201':
+          description: Product created.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Product berhasil dibuat
+                data:
+                  id: 3
+                  name: Keyboard
+                  description: Mechanical keyboard
+                  price: 75.5
+                  stock: 4
+                  created_by: 12
+        '401':
+          description: Bearer token is missing, invalid, or expired.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '422':
+          description: Product input failed validation.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationErrorResponse' }
+  /products/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Positive integer product ID.
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      tags: [Products]
+      operationId: getProductById
+      summary: Get a product by ID
+      security: []
+      responses:
+        '200':
+          description: Product detail.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Product berhasil diambil
+                data:
+                  id: 3
+                  name: Keyboard
+                  description: Mechanical keyboard
+                  price: 75.5
+                  stock: 4
+                  created_by: 12
+        '404':
+          description: Product does not exist.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+    put:
+      tags: [Products]
+      operationId: replaceProduct
+      summary: Replace a product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+            example:
+              name: Updated Keyboard
+              description: Updated description
+              price: 80
+              stock: 2
+      responses:
+        '200':
+          description: Product replaced.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Product berhasil diperbarui
+                data:
+                  id: 3
+                  name: Updated Keyboard
+                  description: Updated description
+                  price: 80
+                  stock: 2
+                  created_by: 12
+        '401':
+          description: Bearer token is missing, invalid, or expired.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Product does not exist.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '422':
+          description: Product input failed validation.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationErrorResponse' }
+    patch:
+      tags: [Products]
+      operationId: updateProduct
+      summary: Partially update a product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPatch'
+            example:
+              price: 80
+      responses:
+        '200':
+          description: Product updated.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Product berhasil diperbarui
+                data:
+                  id: 3
+                  name: Keyboard
+                  description: Mechanical keyboard
+                  price: 80
+                  stock: 4
+                  created_by: 12
+        '401':
+          description: Bearer token is missing, invalid, or expired.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Product does not exist.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '422':
+          description: Product input failed validation.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationErrorResponse' }
+    delete:
+      tags: [Products]
+      operationId: deleteProduct
+      summary: Delete a product
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Product deleted.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Product berhasil dihapus
+                data: 3
+        '401':
+          description: Bearer token is missing, invalid, or expired.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Product does not exist.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        email: { type: string, format: email, maxLength: 150 }
+        password: { type: string, minLength: 8 }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 1 }
+    ProductInput:
+      type: object
+      required: [name, price]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 150 }
+        description: { type: string }
+        price: { type: number, minimum: 0 }
+        stock: { type: integer, minimum: 0, default: 0 }
+    ProductPatch:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 150 }
+        description: { type: string }
+        price: { type: number, minimum: 0 }
+        stock: { type: integer, minimum: 0 }
+    ErrorResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string, example: Product tidak ditemukan }
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string, example: Validasi gagal }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+          example:
+            price: ["Price wajib berupa angka nol atau lebih"]

@@ -1,0 +1,113 @@
+{
+  "info": {
+    "name": "Product API",
+    "description": "Auth and Products API tests. Run the requests in order with the Local environment selected.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.environment.set('email', 'student.' + Date.now() + '@example.test');"] } },
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('register returns 201', () => pm.response.to.have.status(201));", "const body = pm.response.json();", "pm.test('response does not expose password', () => pm.expect(body.data).not.to.have.property('password'));", "pm.environment.set('registered_user_id', body.data.id);"] } }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Student\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{base_url}}/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('login returns 200', () => pm.response.to.have.status(200));", "const body = pm.response.json();", "pm.test('login returns a JWT', () => pm.expect(body.data.token).to.be.a('string').and.not.empty);", "pm.environment.set('token', body.data.token);"] } }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{base_url}}/auth/login"
+          }
+        },
+        {
+          "name": "Login with invalid credentials",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('invalid credentials return 401', () => pm.response.to.have.status(401));"] } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"definitely-wrong-password\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{base_url}}/auth/login"
+          }
+        },
+        {
+          "name": "Get current user",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('/auth/me returns 200', () => pm.response.to.have.status(200));", "pm.test('current user matches registered account', () => pm.expect(pm.response.json().data.id).to.eql(Number(pm.environment.get('registered_user_id'))));"] } }],
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/auth/me", "description": "Requires the token saved automatically by the Login request." }
+        },
+        {
+          "name": "Get current user without token",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('missing token returns 401', () => pm.response.to.have.status(401));"] } }],
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "header": [], "url": "{{base_url}}/auth/me" }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List products",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('list products returns 200', () => pm.response.to.have.status(200));", "pm.test('response data is an array', () => pm.expect(pm.response.json().data).to.be.an('array'));"] } }],
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/products" }
+        },
+        {
+          "name": "Create product without token",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('missing token returns 401', () => pm.response.to.have.status(401));"] } }],
+          "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Runner Product\",\n  \"description\": \"Created by Postman Runner\",\n  \"price\": 15000,\n  \"stock\": 5\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/products" }
+        },
+        {
+          "name": "Create product",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('create product returns 201', () => pm.response.to.have.status(201));", "const body = pm.response.json();", "pm.test('created product has an id', () => pm.expect(body.data.id).to.be.a('number'));", "pm.environment.set('product_id', body.data.id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Runner Product\",\n  \"description\": \"Created by Postman Runner\",\n  \"price\": 15000,\n  \"stock\": 5\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/products" }
+        },
+        {
+          "name": "Get product by id",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('get product returns 200', () => pm.response.to.have.status(200));", "pm.test('response id matches product_id', () => pm.expect(pm.response.json().data.id).to.eql(Number(pm.environment.get('product_id'))));"] } }],
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/products/{{product_id}}" }
+        },
+        {
+          "name": "Update product with PATCH",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('patch product returns 200', () => pm.response.to.have.status(200));", "pm.test('price was updated', () => pm.expect(pm.response.json().data.price).to.eql(16000));"] } }],
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"price\": 16000\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/products/{{product_id}}" }
+        },
+        {
+          "name": "Replace product with PUT",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('put product returns 200', () => pm.response.to.have.status(200));"] } }],
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Runner Product Updated\",\n  \"description\": \"Updated by Postman Runner\",\n  \"price\": 16000,\n  \"stock\": 3\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/products/{{product_id}}" }
+        },
+        {
+          "name": "Reject invalid product input",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('invalid input returns 422', () => pm.response.to.have.status(422));", "pm.test('validation errors are included', () => pm.expect(pm.response.json().errors).to.be.an('object'));"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \" \",\n  \"price\": -1\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/products" }
+        },
+        {
+          "name": "Delete product",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('delete product returns 200', () => pm.response.to.have.status(200));"] } }],
+          "request": { "method": "DELETE", "header": [], "url": "{{base_url}}/products/{{product_id}}" }
+        },
+        {
+          "name": "Get deleted product",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('missing product returns 404', () => pm.response.to.have.status(404));"] } }],
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/products/{{product_id}}" }
+        }
+      ]
+    }
+  ],
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+}

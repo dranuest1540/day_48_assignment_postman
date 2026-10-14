@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import courseRoutes from "./routes/course.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import categoryRoutes from "./routes/category.routes.js";
+import productRoutes from "./routes/product.routes.js";
 
 const app = express();
 
@@ -15,5 +18,15 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/courses", courseRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
+
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: "Endpoint tidak ditemukan"
+    });
+});
 
 export default app;
