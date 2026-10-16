@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "{{email}}",
+      "password": "{{password}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('login returns 200', () => pm.response.to.have.status(200));
+      const body = pm.response.json();
+      pm.test('login returns a JWT', () => pm.expect(body.data.token).to.be.a('string').and.not.empty);
+      pm.environment.set('token', body.data.token);
+    language: text/javascript
+order: 2000

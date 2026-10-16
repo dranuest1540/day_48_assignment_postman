@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{base_url}}/products/{{product_id}}"
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: pm.test('delete product returns 200', () => pm.response.to.have.status(200));
+    language: text/javascript
+order: 8000

@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{base_url}}/products"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Runner Product",
+      "description": "Created by Postman Runner",
+      "price": 15000,
+      "stock": 5
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: pm.test('missing token returns 401', () => pm.response.to.have.status(401));
+    language: text/javascript
+order: 2000

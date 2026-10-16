@@ -164,6 +164,14 @@ For database-backed testing in Postman:
 
 The collection includes expected status assertions for registration, login success/failure, missing token, Product list/create/read/PATCH/PUT/delete, not found, and validation errors. The Runner writes a test user/product to the configured local database.
 
+### Postman Runner Screenshots
+
+The first image shows all 14 requests selected in Collection Runner with the `Local` environment. The second image shows the completed run: 22 tests passed with no failures or errors.
+
+![Postman Collection Runner setup with all 14 requests selected](backend/docs/images/postman-runner-setup.png.png)
+
+![Postman Collection Runner results showing 22 tests passed and 0 errors](backend/docs/images/postman-runner-results.png.png)
+
 The complete Auth and Products contract, including methods, paths, authorization, schemas, and success/error responses, is in [backend/docs/openapi.yaml](backend/docs/openapi.yaml). It targets `http://localhost:3000/api` and can be opened in Swagger Editor or another OpenAPI 3.0 viewer.
 
 Run the available frontend checks from `frontend/`:

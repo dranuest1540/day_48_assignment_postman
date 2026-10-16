@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{base_url}}/products"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('list products returns 200', () => pm.response.to.have.status(200));
+      pm.test('response data is an array', () => pm.expect(pm.response.json().data).to.be.an('array'));
+    language: text/javascript
+order: 1000

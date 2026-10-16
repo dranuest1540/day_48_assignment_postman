@@ -1,0 +1,8 @@
+$kind: collection
+description: Auth and Products API tests. Run the requests in order with the Local environment selected.
+auth:
+  - id: ee56df52-0e8f-41c7-b9a2-7d6d54f53d1d
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"

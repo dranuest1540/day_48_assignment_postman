@@ -17,6 +17,13 @@ app.get("/", (req, res) => {
     });
 });
 
+app.get("/api/health", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "LMS API is healthy"
+    });
+});
+
 app.use("/api/courses", courseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);

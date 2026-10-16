@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{base_url}}/products/{{product_id}}"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "price": 16000
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('patch product returns 200', () => pm.response.to.have.status(200));
+      pm.test('price was updated', () => pm.expect(pm.response.json().data.price).to.eql(16000));
+    language: text/javascript
+order: 5000

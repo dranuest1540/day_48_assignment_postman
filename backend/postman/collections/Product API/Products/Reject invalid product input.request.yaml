@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{base_url}}/products"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": " ",
+      "price": -1
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('invalid input returns 422', () => pm.response.to.have.status(422));
+      pm.test('validation errors are included', () => pm.expect(pm.response.json().errors).to.be.an('object'));
+    language: text/javascript
+order: 7000

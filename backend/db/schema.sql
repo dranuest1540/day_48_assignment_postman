@@ -122,6 +122,7 @@ CREATE TABLE products (
 -- ==========================================
 -- INSERT USERS
 -- ==========================================
+-- password all: password123
 
 INSERT INTO users (name, email, password, role) VALUES
 ('Danu Prastyo', 'danu@gmail.com', '$2b$10$awVK0z8j5r4giXxsV6OlAu1zVrCBBTxn7ArHeq/lxSQENbAAO1q9a', 'student'),

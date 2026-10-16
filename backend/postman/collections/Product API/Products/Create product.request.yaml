@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/products"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Runner Product",
+      "description": "Created by Postman Runner",
+      "price": 15000,
+      "stock": 5
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('create product returns 201', () => pm.response.to.have.status(201));
+      const body = pm.response.json();
+      pm.test('created product has an id', () => pm.expect(body.data.id).to.be.a('number'));
+      pm.environment.set('product_id', body.data.id);
+    language: text/javascript
+order: 3000
